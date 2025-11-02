@@ -4,7 +4,7 @@ This project is a small Node/Express app that renders a retro-styled calculator 
 
 Screenshot:
 
-![SimpleCalc screenshot](app/screenshots/simplecalc.png)
+![SimpleCalc screenshot](./app/screenshots/simplecalc.png)
 
 Key features:
 - Calculator UI with keypad and result display
