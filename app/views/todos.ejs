@@ -5,75 +5,180 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Bharat's Todo App</title>
+    <title>Simple Calculator</title>
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        :root{
+            --bg:#f3f4f6;
+            --panel:#111827;
+            --accent:#22c55e;
+            --lcd:#d1fae5;
+            --btn:#4b5563;
+            --btn-active:#1f2937;
+        }
+        body{background:var(--bg);font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;color:#111}
+        .app-wrap{max-width:1000px;margin:40px auto}
+    .app-title{font-size:28px;margin:0 0 14px 0;font-weight:700;color:#0f172a}
+        .calculator-panel{background:linear-gradient(180deg,#0f172a 0%, #071029 100%);color:var(--lcd);border-radius:12px;padding:24px;box-shadow:0 20px 40px rgba(2,6,23,0.4)}
+        .display{background:linear-gradient(180deg,#07152a,#021223);border-radius:8px;padding:16px;text-align:right;font-family: 'Courier New', monospace;color:var(--lcd);box-shadow:inset 0 -6px 24px rgba(0,0,0,0.6);}
+        .expr{font-size:16px;opacity:0.8}
+        .result{font-size:36px;font-weight:700;margin-top:8px}
+        .keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+        .key{background:linear-gradient(180deg,#f3f4f6,#e5e7eb);border-radius:8px;padding:16px;text-align:center;font-weight:600;color:#111;cursor:pointer;user-select:none;box-shadow:0 6px 10px rgba(2,6,23,0.08)}
+        .key.operator{background:linear-gradient(180deg,#ffb86b,#ff9f43);color:#fff}
+        .key.equal{background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;grid-column:span 2}
+        .key.zero{grid-column:span 2}
+        .key:active{transform:translateY(1px)}
+
+        .history-panel{background:#fff;border-radius:12px;padding:12px;height:420px;overflow:auto}
+        .history-item{padding:10px;border-bottom:1px solid #f1f1f1}
+        .history-expression{font-family:monospace;color:#111}
+        .history-result{color:var(--accent);font-weight:700}
+
+        @media(max-width:880px){
+            .grid{display:block}
+            .calculator-panel{margin-bottom:20px}
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container m-5 p-2 rounded mx-auto bg-light shadow">
-        
-        <!-- App title section -->
-        <div class="row m-1 p-4">
-            <div class="col">
-                <div class="p-1 h1 text-primary text-center mx-auto display-inline-block">
-                    <u>Bharat's Todo App</u>
+    <div class="app-wrap">
+        <h1 class="app-title">SimpleCalc</h1>
+        <div class="grid d-flex" style="gap:20px;align-items:flex-start">
+            <div style="flex:1">
+                <div class="calculator-panel">
+                    <div class="display">
+                        <div class="expr" id="expression">0</div>
+                        <div class="result" id="result">0</div>
+                    </div>
+
+                    <div class="keypad" id="keypad">
+                        <div class="key" data-val="7">7</div>
+                        <div class="key" data-val="8">8</div>
+                        <div class="key" data-val="9">9</div>
+                        <div class="key operator" data-val="/">÷</div>
+
+                        <div class="key" data-val="4">4</div>
+                        <div class="key" data-val="5">5</div>
+                        <div class="key" data-val="6">6</div>
+                        <div class="key operator" data-val="*">×</div>
+
+                        <div class="key" data-val="1">1</div>
+                        <div class="key" data-val="2">2</div>
+                        <div class="key" data-val="3">3</div>
+                        <div class="key operator" data-val="-">−</div>
+
+                        <div class="key" data-action="clear">C</div>
+                        <div class="key" data-val="0" class="zero">0</div>
+                        <div class="key" data-val="." >.</div>
+                        <div class="key operator" data-val="+">+</div>
+
+                        <div class="key" data-action="back">⌫</div>
+                        <div class="key equal" data-action="equals">=</div>
+                        <div class="key" data-val="%">%</div>
+                    </div>
                 </div>
             </div>
-        </div>
-            <div class="row m-1 p-3">
-                <div class="col col-11 mx-auto">
-                    <form method="POST" action="/" autocomplete="off">
-                        <div class="row m-1 p-3">
-                            <div class="col col-11 mx-auto">
-                                <div class="row bg-white rounded shadow-sm p-2 add-todo-wrapper align-items-center justify-content-center">
-                                    <div class="col">
-                                        <input class="form-control form-control-lg border-0 add-todo-input bg-transparent rounded" type="text" name="task" placeholder="Add new Task">
-                                    </div>
-                                    <div class="col-auto px-0 mx-0 mr-2">
-                                        <button type="submit" class="btn btn-primary">Add</button>
-                                    </div>
+
+            <div style="width:320px">
+                <div class="history-panel">
+                    <h5 style="margin-top:6px">History</h5>
+                    <div style="margin-bottom:8px;display:flex;gap:8px">
+                        <button id="clearHistory" class="btn btn-sm btn-outline-secondary">Clear</button>
+                        <button id="refreshHistory" class="btn btn-sm btn-outline-primary">Refresh</button>
+                    </div>
+                    <div id="historyList">
+                        <% if (history && history.length) { %>
+                            <% history.forEach(item => { %>
+                                <div class="history-item" data-id="<%= item._id %>">
+                                    <div class="history-expression"><%= item.expression %></div>
+                                    <div class="history-result"><%= item.result %></div>
                                 </div>
-                            </div>
-                        </div>
-                    </form>
-                    <hr>
-                    <div class="row">
-                        <div class="col-12">
-                            <% if(Object.keys(tasks).length> 0) { %>
-                                <ul class="nav flex-column">
-                                    <% tasks.forEach(todo=> { %>
-                                        <li class="nav-item">
-                                            <div class="d-flex justify-content-between py-1">
-                                                <div class="d-flex flex-row">
-                                                    <div>
-                                                        <%= todo.task %>
-                                                            <p class="text-muted"><small>
-                                                                    <%= moment(todo.created_at).fromNow() %>
-                                                                </small></p>
-                                                    </div>
-                                                </div>
-                                                <a href="javascript:;" onclick="this.children[0].submit()"
-                                                    class="text-danger">
-                                                    <form method="POST" action="/todo/destroy">
-                                                        <input type="hidden" name="_key" value="<%= todo._id %>" />
-                                                    </form>
-                                                    <i class="fa fa-trash-o"></i>
-                                                </a>
-                                            </div>
-                                        </li>
-                                        <% }) %>
-                                </ul>
-                                <% } else { %>
-                                    <div class="text-center"><strong>Please add some task.</strong></div>
-                                    <% }%>
-                        </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="text-muted">No history yet</div>
+                        <% } %>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        (function(){
+            const expressionEl = document.getElementById('expression');
+            const resultEl = document.getElementById('result');
+            const keypad = document.getElementById('keypad');
+            const historyList = document.getElementById('historyList');
+
+            let expr = '';
+
+            function render(){
+                expressionEl.textContent = expr || '0';
+                resultEl.textContent = ' ';
+            }
+
+            function evalRemote(expression){
+                return fetch('/calculate', {
+                    method:'POST',
+                    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                    body: 'expression=' + encodeURIComponent(expression)
+                }).then(r=>r.json())
+            }
+
+            function refreshHistory(){
+                fetch('/history').then(r=>r.json()).then(data=>{
+                    if(!data.ok) return;
+                    const items = data.history;
+                    historyList.innerHTML = '';
+                    if(!items.length){ historyList.innerHTML = '<div class="text-muted">No history yet</div>'; return }
+                    items.forEach(it=>{
+                        const node = document.createElement('div');
+                        node.className = 'history-item';
+                        node.innerHTML = '<div class="history-expression">'+it.expression+'</div><div class="history-result">'+it.result+'</div>';
+                        node.addEventListener('click', ()=>{ expr = it.expression; render(); });
+                        historyList.appendChild(node);
+                    })
+                })
+            }
+
+            keypad.addEventListener('click', (e)=>{
+                const key = e.target.closest('.key');
+                if(!key) return;
+                const val = key.getAttribute('data-val');
+                const action = key.getAttribute('data-action');
+                if(action === 'clear') { expr=''; render(); return }
+                if(action === 'back') { expr = expr.slice(0,-1); render(); return }
+                if(action === 'equals'){
+                    if(!expr) return;
+                    evalRemote(expr).then(res=>{
+                        if(res.ok){
+                            resultEl.textContent = res.result;
+                            expr = String(res.result);
+                            refreshHistory();
+                        } else {
+                            resultEl.textContent = res.error || 'Err';
+                        }
+                    })
+                    return;
+                }
+                if(val){ expr += val; render(); }
+            })
+
+            document.getElementById('clearHistory').addEventListener('click', ()=>{
+                fetch('/history/clear', {method:'POST'}).then(()=>refreshHistory())
+            })
+            document.getElementById('refreshHistory').addEventListener('click', refreshHistory)
+
+            // initial
+            render();
+            // history already rendered from server, but refresh to ensure latest
+            // setTimeout(refreshHistory, 300);
+        })();
+    </script>
 </body>
 
 </html>

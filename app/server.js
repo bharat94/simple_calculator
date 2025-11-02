@@ -22,6 +22,11 @@ app.set('view engine', 'ejs');
 app.use(connectLiveReload())
 
 app.use(bodyParse.urlencoded({ extended: false }));
+app.use(bodyParse.json());
+
+// serve static files if needed
+const path = require('path');
+app.use('/public', require('express').static(path.join(__dirname, 'public')));
 app.locals.moment = moment;
 
 // Database connection
